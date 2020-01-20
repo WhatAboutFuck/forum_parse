@@ -7,7 +7,7 @@ from config import get_page,another_page
 import config 
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
-import db
+
 import pymongo
 import pprint
 import re
@@ -17,15 +17,16 @@ import new
 def get_message_from_page():
     options = Options()
     options.headless = True
-    driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
 
 
-    driver.get(get_page()[0])
-
+    driver.get(new.get_page())
     group = driver.find_elements_by_class_name("messageContent")#messageContent
-    # ht = driver.
+    global current,last
+    arr_page = driver.find_element_by_class_name("pageNavHeader").text.split('Page ')[1].split(" ")
+    current,last = int(arr_page[0]),int(arr_page[-1])
     first_take = []
-    if int(get_page()[1])>1:
+    if current>1:
         for i in range(len(group)):
             first_take.append(group[i].text)
     else:
@@ -125,18 +126,15 @@ def get_essid_mac_http():
 
 
 def DB():
-    basic =get_essid_mac_http()
+    basic = get_essid_mac_http()
     l = basic[0]
     lst = basic[1]
-    new.write_to_db(l,lst)
+    new.write_to_db(l,lst,current)
     return main()
 
 def main():
-    if int(get_page()[1]) < 500:
-        another_page() 
+    if current <= last:
         return DB()
-    else:
-        return f'Current page: {int(get_page()[1])}'
 
-# print(len(get_essid_mac_http()[0][0]),len(get_essid_mac_http()[1][0]))
+
 DB()
