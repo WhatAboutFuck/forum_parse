@@ -19,7 +19,8 @@ def get_message_from_page(url: str) -> list:
         soup = bs(response.content, 'html.parser')
         # Find all message on the page
         list_of_messages = soup.find_all("div", {"class": "messageContent"})
-        remove_all_trash = lambda x: x.lower().startswith("essid") or x.lower().startswith("bssid") or x.lower().startswith("http")
+        def remove_all_trash(element):
+            return element.lower().startswith("essid") or element.lower().startswith("bssid") or element.lower().startswith("http")
 
         for message in list_of_messages:
             all_taken_message_from_page.append(
